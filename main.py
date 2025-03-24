@@ -1,4 +1,4 @@
-# main.py 
+# main.py
 from game import Game
 
 def main():

@@ -148,6 +148,7 @@ class Game:
         self.check_player_enemy_collisions()
         self.check_bullet_enemy_collisions()
         self.check_player_coin_collisions()
+        self.check_player_powerup_collisions()
         self.test_level_up()
 
         if self.player.health <= 0:
@@ -327,8 +328,7 @@ class Game:
                     powerups_collected.append(powerup)
         
         for p in powerups_collected:
-            if p in self.powerup:
-                self.powerup.remove(p) 
+            self.powerup.remove(p) 
 
 
 
@@ -372,15 +372,17 @@ class Game:
                 self.player.bullet_count = 3
             if self.player_level == 10:
                 self.player.bullet_count = 5
+    
+    def reset_speed(self):
+        self.player.speed /= 3
+
+    def reset_bullets(self):
+        self.player.bullet_count /= 3
+
+    def reset_xp(self):
+        self.xp_progression = 1
 
 
-def reset_speed(self):
-    self.player.speed /= 3
 
-def reset_bullets(self):
-    self.player.bullet_count /= 3
-
-def reset_xp(self):
-    self.xp_progression = 1
    
         

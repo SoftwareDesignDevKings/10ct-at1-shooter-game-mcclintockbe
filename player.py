@@ -53,7 +53,7 @@ class Player:
         base_angle = math.atan2(vy, vx)
         mid = (self.bullet_count - 1) / 2
 
-        for i in range(self.bullet_count):
+        for i in range(int(self.bullet_count)):
             offset = i - mid
             spread_radians = math.radians(angle_spread * offset)
             angle = base_angle + spread_radians

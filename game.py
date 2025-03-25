@@ -312,19 +312,26 @@ class Game:
 
                     self.powerup_number = random.choice([1, 2, 3, 4])
                     if self.powerup_number == 1:
-                        self.player.speed = self.player.speed*3
-                        threading.Timer(30, self.reset_speed).start()
-                        self.player.speed = self.player.speed*1/3
+                        if self.player.speed < 10:
+                            self.player.speed = self.player.speed*2 - 1
+                            threading.Timer(15, self.reset_speed).start()
+                            self.reset_speed
+                        else:
+                            self.poerup_numder = random.choice ([2, 3, 4])
+
+                        
                     elif self.powerup_number == 2:
                         self.player.bullet_count = self.player.bullet_count*3
-                        threading.Timer(30, self.reset_speed).start()
-                        self.player.bullet_count = self.player.bullet_count/3
+                        threading.Timer(15, self.reset_bullets).start()
+                        
+                        
                     elif self.powerup_number == 3:
                         self.player.health = self.player.health+3
                     else:
-                        self.xp_progression = 3
-                        threading.Timer(30, self.reset_speed).start()
-                        self.xp_progression = 3
+                        self.xp_progression += 2
+                        threading.Timer(15, self.reset_xp).start()
+                        
+                        
                     powerups_collected.append(powerup)
         
         for p in powerups_collected:
@@ -374,13 +381,13 @@ class Game:
                 self.player.bullet_count = 5
     
     def reset_speed(self):
-        self.player.speed /= 3
+        self.player.speed = self.player.speed - 1
 
     def reset_bullets(self):
         self.player.bullet_count /= 3
 
     def reset_xp(self):
-        self.xp_progression = 1
+        self.xp_progression -= 2
 
 
 

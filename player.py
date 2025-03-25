@@ -21,6 +21,9 @@ class Player:
         self.frame_index = 0
         self.animation_timer = 0
         self.animation_speed = 8
+        self.powerup_speed = 0
+        self.powerup_xp = 0
+        self.powerup_bullet_count = 0
 
         self.image = self.animations[self.state][self.frame_index]
         self.rect = self.image.get_rect(center=(self.x, self.y))

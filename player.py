@@ -15,6 +15,7 @@ class Player:
         # For example: self.image = assets["player_idle"][0]
         # (or some default image key in assets)
 
+        self.bullet_fire_sfx = pygame.mixer.Sound('assets/sfx/bullet_fire.wav')
         self.speed = app.PLAYER_SPEED
         self.animations = assets["player"]
         self.state = "idle"
@@ -146,9 +147,12 @@ class Player:
     def shoot_toward_mouse(self, pos):
         mx, my = pos # m denotes mouse
         self.shoot_toward_position(mx, my)
+        self.bullet_fire_sfx.play()
+        
 
     def shoot_toward_enemy(self, enemy):
         self.shoot_toward_position(enemy.x, enemy.y)
+        self.bullet_fire_sfx.play()
     
     def add_xp(self, amount):
         self.xp += amount

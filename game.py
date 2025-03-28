@@ -28,6 +28,16 @@ class Game:
         self.level_up_amount = 5
         self.xp_progression = 1
         self.last_level_up = "None"
+        self.level_up_sfx = pygame.mixer.Sound('assets/sfx/level_up.wav')
+        self.enemy_kill_sfx = pygame.mixer.Sound('assets/sfx/enemy_killed.wav')
+        self.health_regen_sfx = pygame.mixer.Sound('assets/sfx/health_recharge.wav')
+        self.bullet_fire_sfx = pygame.mixer.Sound('assets/sfx/bullet_fire.wav')
+        self.game_start_sfx = pygame.mixer.Sound('assets/sfx/game_start.mp3')
+        self.coin_collect_sfx = pygame.mixer.Sound('assets/sfx/coin-257878.mp3')
+        self.power_up_collect_sfx = pygame.mixer.Sound('assets/sfx/power_up_grab-88510.mp3')
+        self.game_over_sfx = pygame.mixer.Sound('assets/sfx/game-over-arcade-6435.mp3')
+        self.player_damage_sfx = pygame.mixer.Sound('assets/sfx/mixkit-soft-quick-punch-2151.wav')
+        self.invulnerable_until = 0
 
 
         # TODO: Create a game window using Pygame
@@ -66,7 +76,7 @@ class Game:
 
     def reset_game(self):
         self.player = Player(app.WIDTH // 2, app.HEIGHT // 2, self.assets)
-
+        self.game_start_sfx.play()
         self.enemies = []
         self.enemy_spawn_timer = 0
         self.enemies_per_spawn = 1
@@ -134,6 +144,7 @@ class Game:
                  self.running = False
             elif event.type == pygame.KEYDOWN:
                 if self.game_over:
+                    
                     if event.key == pygame.K_r:
                         self.reset_game()
                     elif event.key == pygame.K_ESCAPE:
@@ -152,6 +163,7 @@ class Game:
         self.test_level_up()
 
         if self.player.health <= 0:
+            self.game_over_sfx.play()
             self.game_over = True
             return
         self.spawn_enemies()
@@ -195,17 +207,23 @@ class Game:
         pygame.display.flip()
 
     def check_player_enemy_collisions(self):
+        if pygame.time.get_ticks() < self.invulnerable_until:
+            return
         collided = False
         for enemy in self.enemies:
             if enemy.rect.colliderect(self.player.rect):
+                
                 collided = True
                 break
 
         if collided:
             self.player.take_damage(1)
+            self.player_damage_sfx.play()
+            self.invulnerable_until = pygame.time.get_ticks() + 500
             px, py = self.player.x, self.player.y
             for enemy in self.enemies:
                 enemy.set_knockback(px, py, app.PUSHBACK_DISTANCE)
+
 
 
     def draw_game_over_screen(self):
@@ -287,17 +305,19 @@ class Game:
                     new_coin = Coin(enemy.x, enemy.y)
                     self.coins.append(new_coin)
 
-                    if random.choice([1, 2]) == 2:
+                    if random.choice([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]) == 15:
                         new_powerup = powerup(enemy.x, enemy.y)
                         self.powerup.append(new_powerup)
 
                     #kills the bad guy
+                    self.enemy_kill_sfx.play()
                     self.enemies.remove(enemy)
     
     def check_player_coin_collisions(self):
         coins_collected = []
         for coin in self.coins:
                 if coin.rect.colliderect(self.player.rect):
+                    self.coin_collect_sfx.play()
                     coins_collected.append(coin)
 
                     self.player.add_xp(self.xp_progression)
@@ -309,18 +329,18 @@ class Game:
         powerups_collected = []
         for powerup in self.powerup:
                 if powerup.rect.colliderect(self.player.rect):
-
+                    self.power_up_collect_sfx.play()
                     self.powerup_number = random.choice([1, 2, 3, 4])
                     if self.powerup_number == 1:
-                        if self.player.speed < 10:
+                        if self.player.speed < 8:
                             self.player.speed = self.player.speed*2 - 1
                             threading.Timer(15, self.reset_speed).start()
                             self.reset_speed
                         else:
-                            self.poerup_numder = random.choice ([2, 3, 4])
+                            self.powerup_numder = random.choice ([2, 3, 4])
 
                         
-                    elif self.powerup_number == 2:
+                    if self.powerup_number == 2:
                         self.player.bullet_count = self.player.bullet_count*3
                         threading.Timer(15, self.reset_bullets).start()
                         
@@ -350,14 +370,16 @@ class Game:
     
         level_up_choice = random.choice([1,2,3,4,5])
         if self.player.xp >= self.level_up_amount:
+            self.level_up_sfx.play()
             if level_up_choice == 1:
                 self.player.shoot_cooldown = self.player.shoot_cooldown*0.9
                 level_up_choice = random.choice([1,2,3,4,5])
                 self.last_level_up = "Shot Cooldown"
             elif level_up_choice == 2:
-                self.player.health = self.player.health =+ 1
+                self.player.health = self.player.health+1
                 level_up_choice = random.choice([1,2,3,4,5])
                 self.last_level_up = "Health Increase"
+                self.health_regen_sfx.play()
             elif level_up_choice == 3:
                 self.player.bullet_size = self.player.bullet_size*1.4
                 level_up_choice = random.choice([1,2,3,4,5])
@@ -374,7 +396,7 @@ class Game:
             self.player.xp = 0
             self.level_up_amount = self.level_up_amount*1.3
             self.player_level = self.player_level+1
-            self.enemy_spawn_interval = self.enemy_spawn_interval*0.95
+            self.enemy_spawn_interval = self.enemy_spawn_interval*0.9
             if self.player_level == 5:
                 self.player.bullet_count = 3
             if self.player_level == 10:

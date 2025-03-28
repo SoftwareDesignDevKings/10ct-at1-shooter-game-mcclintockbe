@@ -36,7 +36,7 @@ class Player:
         self.bullet_speed = 10
         self.bullet_size = 10
         self.bullet_count = 1
-        self.shoot_cooldown = 20
+        self.shoot_cooldown = 30
         self.shoot_timer = 0
         self.bullets = []
 
@@ -157,30 +157,7 @@ class Player:
     def add_xp(self, amount):
         self.xp += amount
 
-    #probably where the error is, all my own code, level up system
-    def test_level_up(self):
-        player_level = 0
-        level_up_amount = 5
-        level_up_choice = random.choice(1, 5)
-        if self.xp >= level_up_amount:
-            if level_up_choice == 1:
-                self.shoot_cooldown = self.shoot_cooldown*0.9
-                level_up_choice = random.choice(1, 5)
-            elif level_up_choice == 2:
-                self.health = self.health =+ 1
-                level_up_choice = random.choice(1, 5)
-            elif level_up_choice == 3:
-                self.bullet_size = self.bullet_size*1.1
-                level_up_choice = random.choice(1, 5)
-            elif level_up_choice == 4:
-                app.PLAYER_SPEED = app.PLAYER_SPEED*1.2
-                self.speed = app.PLAYER_SPEED
-                level_up_choice = random.choice(1, 5)
-            else:
-                self.bullet_speed = self.bullet_speed*1.3
-                level_up_choice = random.choice(1, 5)
-            level_up_amount = level_up_amount*1.5
-            player_level = player_level+1
+    
 
 
 

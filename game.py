@@ -18,6 +18,8 @@ class Game:
     def __init__(self):
         pygame.init()  # Initialize Pygame
 
+        # All of the important variables except the player stats. e.g sfx, xp, emeny 
+        # characteristics, etc
         self.enemies = []
         self.enemy_spawn_timer = 0
         self.enemy_spawn_interval = 40
@@ -40,28 +42,28 @@ class Game:
         self.invulnerable_until = 0
 
 
-        # TODO: Create a game window using Pygame
+        #Create a game window using Pygame
         self.screen = pygame.display.set_mode((app.WIDTH, app.HEIGHT))
-        pygame.display.set_caption("Ben's Shooter Game")
+        pygame.display.set_caption("AT1 2D Shooter")
 
         self.clock = pygame.time.Clock()
 
-        # TODO: Set up the game clock for frame rate control
-        # self.clock = ?
+        #Set up the game clock for frame rate control
+        
 
-        # TODO: Load assets (e.g., fonts, images)
+        #Load assets (e.g., fonts, images)
         self.assets = app.load_assets()
         font_path = os.path.join("assets", "PressStart2P.ttf")
         self.font_small = pygame.font.Font(font_path, 18)
         self.font_large = pygame.font.Font(font_path, 32)
 
 
-        # TODO: Create a random background
+        # Create a random background
         self.background = self.create_random_background(
             app.WIDTH, app.HEIGHT, self.assets["floor_tiles"]
         )
 
-         # TODO: Set up game state variables
+         # Set up game state variables
         self.running = True
         self.game_over = False
         self.coins = []
@@ -75,6 +77,7 @@ class Game:
         self.reset_game()
 
     def reset_game(self):
+        #reset all varibles when game reset
         self.player = Player(app.WIDTH // 2, app.HEIGHT // 2, self.assets)
         self.game_start_sfx.play()
         self.enemies = []
@@ -86,6 +89,7 @@ class Game:
         self.game_over = False
 
     def create_random_background(self, width, height, floor_tiles):
+        #set the background from assets
         print("{create_random_background} is running")
         bg = pygame.Surface((width, height))
         tile_w = floor_tiles[0].get_width()
@@ -99,11 +103,13 @@ class Game:
         return bg
     
     def spawn_enemies(self):
+        #time enemy spawning
         self.enemy_spawn_timer += 1
         if self.enemy_spawn_timer >= self.enemy_spawn_interval:
             self.enemy_spawn_timer = 0
 
             for _ in range(self.enemies_per_spawn):
+                #randomly decide where enemies spawn
                 side = random.choice(["top", "bottom", "left", "right"])
                 if side == "top":
                     x = random.randint(0, app.WIDTH)
@@ -128,6 +134,7 @@ class Game:
             self.handle_events()
 
             if not self.game_over:
+                #keep running until player dies
                 self.update()
 
             self.draw()
@@ -156,6 +163,7 @@ class Game:
         for enemy in self.enemies:
             enemy.update(self.player)
 
+        #all of the functions that must always be running
         self.check_player_enemy_collisions()
         self.check_bullet_enemy_collisions()
         self.check_player_coin_collisions()
@@ -188,6 +196,8 @@ class Game:
         hp = max(0, min(self.player.health, 5))
         health_img = self.assets["health"][hp]
         self.screen.blit(health_img, (10, 10))
+
+        # Text on the side for info
 
         xp_text_surf = self.font_small.render(f"XP to next level: {int(self.level_up_amount - self.player.xp)}", True, (255, 255, 255))
         self.screen.blit(xp_text_surf, (10, 70))
@@ -255,12 +265,7 @@ class Game:
                 nearest = enemy
         return nearest
     
-    def check_bullet_enemy_collisions(self):
-            for bullet in self.player.bullets:
-                for enemy in self.enemies:
-                    if bullet.rect.colliderect(enemy.rect):
-                        self.player.bullets.remove(bullet)
-                        self.enemies.remove(enemy)
+    
 
     def handle_events(self):
         for event in pygame.event.get():
@@ -282,6 +287,7 @@ class Game:
                     self.player.shoot_toward_mouse(event.pos)
     
     def find_nearest_enemy(self):
+        #locates nearest enemy
         if not self.enemies:
             return None
         nearest = None
@@ -295,6 +301,7 @@ class Game:
         return nearest
     
     def check_bullet_enemy_collisions(self):
+        #does everything important when bullet touches bad guy
         for bullet in self.player.bullets:
             for enemy in self.enemies:
                 if bullet.rect.colliderect(enemy.rect):
@@ -305,6 +312,7 @@ class Game:
                     new_coin = Coin(enemy.x, enemy.y)
                     self.coins.append(new_coin)
 
+                    # Random chance of powerup being dropped
                     if random.choice([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]) == 15:
                         new_powerup = powerup(enemy.x, enemy.y)
                         self.powerup.append(new_powerup)
@@ -314,6 +322,7 @@ class Game:
                     self.enemies.remove(enemy)
     
     def check_player_coin_collisions(self):
+        #Allows for coin collection when the player does over coin
         coins_collected = []
         for coin in self.coins:
                 if coin.rect.colliderect(self.player.rect):
@@ -326,12 +335,15 @@ class Game:
                 self.coins.remove(c) 
     
     def check_player_powerup_collisions(self):
+        # Allows for powerup collection
         powerups_collected = []
         for powerup in self.powerup:
                 if powerup.rect.colliderect(self.player.rect):
                     self.power_up_collect_sfx.play()
                     self.powerup_number = random.choice([1, 2, 3, 4])
+                    # Activates a random powerup for 15 seconds
                     if self.powerup_number == 1:
+                        #When speed gets too high, the game becomes unplayable, so i limited it to avoid stacking speed buffs too much
                         if self.player.speed < 8:
                             self.player.speed = self.player.speed*2 - 1
                             threading.Timer(15, self.reset_speed).start()
@@ -367,41 +379,43 @@ class Game:
     #probably where the error is, all my own code, level up system
     def test_level_up(self):
         
-    
+        #Makes a random level up upgrade every level
         level_up_choice = random.choice([1,2,3,4,5])
         if self.player.xp >= self.level_up_amount:
             self.level_up_sfx.play()
             if level_up_choice == 1:
-                self.player.shoot_cooldown = self.player.shoot_cooldown*0.9
-                level_up_choice = random.choice([1,2,3,4,5])
+                #lowers something exponetioally to avoid negative functions if the game goes on too long, to avoid problems we dont need
+                self.player.shoot_cooldown = self.player.shoot_cooldown*0.9   
+                #Changes the text on the left so they know what level up they got        
                 self.last_level_up = "Shot Cooldown"
             elif level_up_choice == 2:
-                self.player.health = self.player.health+1
-                level_up_choice = random.choice([1,2,3,4,5])
+                self.player.health = self.player.health+1               
                 self.last_level_up = "Health Increase"
                 self.health_regen_sfx.play()
             elif level_up_choice == 3:
-                self.player.bullet_size = self.player.bullet_size*1.4
-                level_up_choice = random.choice([1,2,3,4,5])
+                self.player.bullet_size = self.player.bullet_size*1.4               
                 self.last_level_up = "Bullet Size"
             elif level_up_choice == 4:
                 app.PLAYER_SPEED = app.PLAYER_SPEED*1.2
-                self.player.speed = app.PLAYER_SPEED
-                level_up_choice = random.choice([1,2,3,4,5])
+                self.player.speed = app.PLAYER_SPEED              
                 self.last_level_up = "Movement Speed"
             else:
-                self.player.bullet_speed = self.player.bullet_speed*1.3
-                level_up_choice = random.choice([1,2,3,4,5])
+                self.player.bullet_speed = self.player.bullet_speed*1.3               
                 self.last_level_up = "Bullet speed"
+            #resets xp
             self.player.xp = 0
+            #Increases Xp need for next level
             self.level_up_amount = self.level_up_amount*1.3
+            #Increases Level
             self.player_level = self.player_level+1
+            #Enemyies spawn faster the higher your level, to keep some difficulty
             self.enemy_spawn_interval = self.enemy_spawn_interval*0.9
+            #little buffs at milestones regardless of upgrades
             if self.player_level == 5:
-                self.player.bullet_count = 3
+                self.player.bullet_count += 3
             if self.player_level == 10:
-                self.player.bullet_count = 5
-    
+                self.player.bullet_count += 5
+    #resets powerups
     def reset_speed(self):
         self.player.speed = self.player.speed - 1
 

@@ -229,6 +229,8 @@ class Game:
         if collided:
             self.player.take_damage(1)
             self.player_damage_sfx.play()
+            #Makes sure the player cant take damage for half a second after taking damage to avoid instant deaths by touching multiple
+            #enemies at once or accidentally following ones in knockback
             self.invulnerable_until = pygame.time.get_ticks() + 500
             px, py = self.player.x, self.player.y
             for enemy in self.enemies:
@@ -259,6 +261,7 @@ class Game:
         min_dist = float('inf')
         px, py = self.player.x, self.player.y
         for enemy in self.enemies:
+            # More Pythag
             dist = math.sqrt((enemy.x - px)**2 + (enemy.y - py)**2)
             if dist < min_dist:
                 min_dist = dist
@@ -268,6 +271,7 @@ class Game:
     
 
     def handle_events(self):
+        #Keeps everything Running
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running = False
@@ -302,11 +306,13 @@ class Game:
     
     def check_bullet_enemy_collisions(self):
         #does everything important when bullet touches bad guy
-        for bullet in self.player.bullets:
+        bullets_to_remove = []
+        enemies_to_remove = []
+        for bullet in self.player.bullets[:]:  # Iterate over a copy of the list
             for enemy in self.enemies:
                 if bullet.rect.colliderect(enemy.rect):
-                    #removes the bullet
-                    self.player.bullets.remove(bullet)
+                    bullets_to_remove.append(bullet)  # Mark bullet for removal
+                    enemies_to_remove.append(enemy)  # Store enemy to remove later
 
                     #drops a coin
                     new_coin = Coin(enemy.x, enemy.y)
@@ -320,6 +326,14 @@ class Game:
                     #kills the bad guy
                     self.enemy_kill_sfx.play()
                     self.enemies.remove(enemy)
+        # Remove bullets outside of the loop
+        for bullet in bullets_to_remove:
+            if bullet in self.player.bullets:
+                self.player.bullets.remove(bullet)
+
+        for enemy in enemies_to_remove:
+            if enemy in self.enemies:  # Check before removing
+                self.enemies.remove(enemy)
     
     def check_player_coin_collisions(self):
         #Allows for coin collection when the player does over coin

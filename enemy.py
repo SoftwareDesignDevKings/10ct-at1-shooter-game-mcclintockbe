@@ -4,13 +4,12 @@ import math
 
 class Enemy:
     def __init__(self, x, y, enemy_type, enemy_assets, speed=app.DEFAULT_ENEMY_SPEED):
+        # More important variables to set at start
         self.x = x
         self.y = y
         self.speed = speed
         
-        # TODO: Define an attribute for movement speed
         
-        # TODO: Load animation frames
         self.frames = enemy_assets[enemy_type]
         self.frame_index = 0
         self.animation_timer = 0
@@ -24,9 +23,7 @@ class Enemy:
         self.knockback_dist_remaining = 0
         self.knockback_dx = 0
         self.knockback_dy = 0
-        # TODO: Track if enemy is facing left
         
-        # TODO: Define knockback properties
         
     def update(self, player):
         if self.knockback_dist_remaining > 0:
@@ -34,11 +31,11 @@ class Enemy:
         else:
             self.move_toward_player(player)
         self.animate()
-        # TODO: Check if knockback is active and call apply_knockback()
+        # Check if knockback is active and call apply_knockback()
 
-        # TODO: If no knockback, move toward the player
+        # If no knockback, move toward the player
 
-        # TODO: Call animate() to update enemy sprite animation
+        # Call animate() to update enemy sprite animation
 
     def move_toward_player(self, player):
         # Calculates direction vector toward player
@@ -57,6 +54,7 @@ class Enemy:
         pass
 
     def apply_knockback(self):
+        # Kbocks enemies back after player takes damage
         step = min(app.ENEMY_KNOCKBACK_SPEED, self.knockback_dist_remaining)
         self.knockback_dist_remaining -= step
 

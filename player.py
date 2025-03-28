@@ -13,8 +13,8 @@ class Player:
 
         # TODO: 2. Load the player's image from assets
         # For example: self.image = assets["player_idle"][0]
-        # (or some default image key in assets)
-
+       
+        # More importaant variables
         self.bullet_fire_sfx = pygame.mixer.Sound('assets/sfx/bullet_fire.wav')
         self.speed = app.PLAYER_SPEED
         self.animations = assets["player"]
@@ -41,11 +41,13 @@ class Player:
         self.bullets = []
 
     def shoot_toward_position(self, tx, ty):
+        #limit shooting speed
         if self.shoot_timer >= self.shoot_cooldown:
             return
 
         dx = tx - self.x
         dy = ty - self.y
+        #Uses Pythag to work out distance
         dist = math.sqrt(dx**2 + dy**2)
         if dist == 0:
             return
@@ -95,7 +97,7 @@ class Player:
         self.x = max(0, min(self.x, app.WIDTH))
         self.y = max(0, min(self.y, app.HEIGHT))
         self.rect.center = (self.x, self.y)
-        # TODO: 3. Clamp player position to screen bounds
+        
 
         # animation state
         if vel_x != 0 or vel_y != 0:
@@ -113,6 +115,7 @@ class Player:
     def update(self):
         for bullet in self.bullets:
             bullet.update()
+            #Remove bullets after they leave the screen
             if bullet.y < 0 or bullet.y > app.HEIGHT or bullet.x < 0 or bullet.x > app.WIDTH:
                 self.bullets.remove(bullet)
 
@@ -138,12 +141,12 @@ class Player:
         for bullet in self.bullets:
             bullet.draw(surface)
     
-
+    #Basic Functions for game functions
     def take_damage(self, amount):
-        """Reduce the player's health by a given amount, not going below zero."""
+        #Makes sure that health goes down, but not below 0
         self.health = max(0, self.health - amount)
         pass
-
+    
     def shoot_toward_mouse(self, pos):
         mx, my = pos # m denotes mouse
         self.shoot_toward_position(mx, my)

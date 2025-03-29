@@ -1,6 +1,6 @@
 
 import app
-
+from config import PIERCING_BULLETS
 class Bullet:
     def __init__(self, x, y, vx, vy, size):
         self.x = x
@@ -8,16 +8,20 @@ class Bullet:
         self.vx = vx
         self.vy = vy
         self.size = size
+        
 
         self.image = app.pygame.Surface((self.size, self.size), app.pygame.SRCALPHA)
-        self.image.fill((255, 255, 255))
+        self.bullet_colour = self.image.fill((255, 255, 255))
+
         self.rect = self.image.get_rect(center=(self.x, self.y))
 
 
     def update (self):
+        from game import Game
         self.x += self.vx
         self.y += self. vy
         self.rect.center = (self.x, self.y)
+        
 
 
     def draw(self, surface):

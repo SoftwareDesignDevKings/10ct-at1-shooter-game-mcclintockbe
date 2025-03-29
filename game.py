@@ -12,6 +12,7 @@ from coin import Coin
 from enemy import Enemy
 from player import Player
 from powerup import powerup 
+from bullet import Bullet
 
 class Game:
   
@@ -39,6 +40,7 @@ class Game:
         self.power_up_collect_sfx = pygame.mixer.Sound('assets/sfx/power_up_grab-88510.mp3')
         self.game_over_sfx = pygame.mixer.Sound('assets/sfx/game-over-arcade-6435.mp3')
         self.player_damage_sfx = pygame.mixer.Sound('assets/sfx/mixkit-soft-quick-punch-2151.wav')
+        self.piercing_bullets = False
         self.invulnerable_until = 0
 
 
@@ -74,6 +76,8 @@ class Game:
         self.enemy_spawn_timer = 0
         self.enemy_spawn_interval = 60
         self.enemies_per_spawn = 1
+
+
         self.reset_game()
 
     def reset_game(self):
@@ -169,6 +173,7 @@ class Game:
         self.check_player_coin_collisions()
         self.check_player_powerup_collisions()
         self.test_level_up()
+        
 
         if self.player.health <= 0:
             self.game_over_sfx.play()
@@ -199,7 +204,7 @@ class Game:
 
         # Text on the side for info
 
-        xp_text_surf = self.font_small.render(f"XP to next level: {int(self.level_up_amount - self.player.xp)}", True, (255, 255, 255))
+        xp_text_surf = self.font_small.render(f"XP to next level: {int(self.level_up_amount - self.player.xp+1)}", True, (255, 255, 255))
         self.screen.blit(xp_text_surf, (10, 70))
 
         level_text_surf = self.font_small.render(f"Level: {self.player_level}", True, (255, 255, 255))
@@ -328,8 +333,9 @@ class Game:
                     self.enemies.remove(enemy)
         # Remove bullets outside of the loop
         for bullet in bullets_to_remove:
-            if bullet in self.player.bullets:
-                self.player.bullets.remove(bullet)
+            if self.piercing_bullets == False:
+                if bullet in self.player.bullets:
+                    self.player.bullets.remove(bullet)
 
         for enemy in enemies_to_remove:
             if enemy in self.enemies:  # Check before removing
@@ -354,16 +360,16 @@ class Game:
         for powerup in self.powerup:
                 if powerup.rect.colliderect(self.player.rect):
                     self.power_up_collect_sfx.play()
-                    self.powerup_number = random.choice([1, 2, 3, 4])
+                    self.powerup_number = random.choice([1, 2, 3, 4, 5])
                     # Activates a random powerup for 15 seconds
                     if self.powerup_number == 1:
                         #When speed gets too high, the game becomes unplayable, so i limited it to avoid stacking speed buffs too much
                         if self.player.speed < 8:
-                            self.player.speed = self.player.speed*2 - 1
+                            self.player.speed = self.player.speed + 1
                             threading.Timer(15, self.reset_speed).start()
                             self.reset_speed
                         else:
-                            self.powerup_numder = random.choice ([2, 3, 4])
+                            self.powerup_numder = random.choice ([2, 3, 4, 5])
 
                         
                     if self.powerup_number == 2:
@@ -373,6 +379,10 @@ class Game:
                         
                     elif self.powerup_number == 3:
                         self.player.health = self.player.health+3
+                    elif self.powerup_number == 4:
+                        
+                        self.piercing_bullets = True
+                        threading.Timer(15, self.reset_piercing).start()
                     else:
                         self.xp_progression += 2
                         threading.Timer(15, self.reset_xp).start()
@@ -413,9 +423,11 @@ class Game:
                 app.PLAYER_SPEED = app.PLAYER_SPEED*1.2
                 self.player.speed = app.PLAYER_SPEED              
                 self.last_level_up = "Movement Speed"
-            else:
+            elif level_up_choice == 5:
                 self.player.bullet_speed = self.player.bullet_speed*1.3               
                 self.last_level_up = "Bullet speed"
+            
+
             #resets xp
             self.player.xp = 0
             #Increases Xp need for next level
@@ -438,6 +450,11 @@ class Game:
 
     def reset_xp(self):
         self.xp_progression -= 2
+    
+    def reset_piercing(self):
+        self.piercing_bullets = False
+
+    
 
 
 

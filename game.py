@@ -260,6 +260,7 @@ class Game:
         self.screen.blit(prompt_surf, prompt_rect)
     
     def find_nearest_enemy(self):
+        # Find the nearest enemy
         if not self.enemies:
             return None
         nearest = None
@@ -295,19 +296,7 @@ class Game:
                 if event.button == 1:  # Left mouse button
                     self.player.shoot_toward_mouse(event.pos)
     
-    def find_nearest_enemy(self):
-        #locates nearest enemy
-        if not self.enemies:
-            return None
-        nearest = None
-        min_dist = float('inf')
-        px, py = self.player.x, self.player.y
-        for enemy in self.enemies:
-            dist = math.sqrt((enemy.x - px)**2 + (enemy.y - py)**2)
-            if dist < min_dist:
-                min_dist = dist
-                nearest = enemy
-        return nearest
+    
     
     def check_bullet_enemy_collisions(self):
         #does everything important when bullet touches bad guy
@@ -438,9 +427,9 @@ class Game:
             self.enemy_spawn_interval = self.enemy_spawn_interval*0.9
             #little buffs at milestones regardless of upgrades
             if self.player_level == 5:
-                self.player.bullet_count += 3
+                self.player.bullet_count += 2
             if self.player_level == 10:
-                self.player.bullet_count += 5
+                self.player.bullet_count += 4
     #resets powerups
     def reset_speed(self):
         self.player.speed = self.player.speed - 1
